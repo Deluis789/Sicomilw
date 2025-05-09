@@ -773,20 +773,33 @@ class ReportsController extends Controller
         try {
             $gestion_actual = Carbon::now()->year;
     
+            // Subconsulta para obtener solo un registro por persona para la gestión actual
+            $sub = DB::table('asignacion_vacaciones')
+                ->select(
+                    'idpersona',
+                    'anios_servicio',
+                    'dias_asignados',
+                    'dias_utilizados'
+                )
+                ->where('gestion', $gestion_actual)
+                ->groupBy('idpersona', 'anios_servicio', 'dias_asignados', 'dias_utilizados');
+    
+            // Consulta principal
             $personas = DB::table('personas')
-                ->leftJoin('asignacion_vacaciones', 'personas.idpersona', '=', 'asignacion_vacaciones.idpersona')
+                ->leftJoinSub($sub, 'vacaciones', function ($join) {
+                    $join->on('personas.idpersona', '=', 'vacaciones.idpersona');
+                })
                 ->leftJoin('grados', 'personas.idgrado', '=', 'grados.idgrado')
                 ->leftJoin('fuerzas', 'personas.idfuerza', '=', 'fuerzas.idfuerza')
                 ->select(
                     DB::raw("CONCAT(personas.appaterno, ' ', personas.apmaterno, ' ', personas.nombres) as nombre"),
-                    'asignacion_vacaciones.anios_servicio',
-                    'asignacion_vacaciones.dias_asignados',
-                    'asignacion_vacaciones.dias_utilizados',
-                    DB::raw('(asignacion_vacaciones.dias_asignados + asignacion_vacaciones.dias_utilizados) as total_dias'),
+                    'vacaciones.anios_servicio',
+                    'vacaciones.dias_asignados',
+                    'vacaciones.dias_utilizados',
+                    DB::raw('(vacaciones.dias_asignados + vacaciones.dias_utilizados) as total_dias'),
                     'grados.abregrado as grado',
                     'fuerzas.fuerza as fuerza'
                 )
-                ->where('asignacion_vacaciones.gestion', $gestion_actual)
                 ->get();
     
             if ($personas->isEmpty()) {

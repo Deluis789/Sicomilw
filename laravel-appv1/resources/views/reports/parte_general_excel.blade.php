@@ -16,16 +16,16 @@
 <table>
     <thead>
         <tr>
-            <th style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">REPARTICIÓN</th>
-            <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">FUERZA</th>
+            <th colspan="4" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">REPARTICIÓN</th>
+            <th colspan="3" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">FUERZA</th>
             <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">GRADO</th>
-            <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">NOMBRES</th>
+            <th colspan="3" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">NOMBRES</th>
             <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">AP_PATERNO</th>
             <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">AP_MATERNO</th>
             <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">PUESTOS</th>
             <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">CELULAR</th>
             <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">CI</th>
-            <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">EMAIL</th>
+            <th colspan="3" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">EMAIL</th>
             <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">FECHA DE NACIMIENTO</th>
             <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">FECHA DE EGRESO</th>
             <th colspan="2" style="background-color: #4F81BD; color: #FFFFFF; font-weight: bold; text-align: center;">ARMA</th>
@@ -42,25 +42,25 @@
     <tbody>
         @foreach($personas as $p)
             <tr>
-                <td style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->nombre_organizacion }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->fuerza }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->grado }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->nombres }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->appaterno }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->apmaterno }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->nombre_puesto }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->celular }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->ci }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->email }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->fechnacimeinto }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->fechaegreso }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->arma }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->especialidad }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->sexo }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->cv }}</td>
+                <td colspan="4" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->nombre_organizacion }}</td>
+                <td colspan="3" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->fuerza }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->grado }}</td>
+                <td colspan="3" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->nombres }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->appaterno }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->apmaterno }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->nombre_puesto }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->celular }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->ci }}</td>
+                <td colspan="3" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->email }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->fechnacimeinto }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->fechaegreso }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->arma }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->especialidad }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->sexo }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->cv }}</td>
                 <!-- <td>{{ $p->situacion }}</td> -->
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->expedicion }}</td>
-                <td colspan="2" style="text-align: center; font-weight: bold; background-color: #DCE6F1;">{{ $p->gsanguineo }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->expedicion }}</td>
+                <td colspan="2" style="text-align: left; font-weight: bold; background-color: #DCE6F1; border: 1px solid #000;">{{ $p->gsanguineo }}</td>
             </tr>
         @endforeach
     </tbody>
