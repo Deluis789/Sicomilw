@@ -165,6 +165,7 @@ class PersonasController extends Controller
                 ->leftJoin('assignments', 'personas.idpersona', '=', 'assignments.idpersona')
                 ->leftJoin('organizacion', 'assignments.idorg', '=', 'organizacion.idorg')
                 ->leftJoin('puestos', 'assignments.idpuesto', '=', 'puestos.idpuesto')
+                ->leftJoin('asignacion_vacaciones', 'personas.idpersona', '=', 'asignacion_vacaciones.idpersona')
                 ->select(
                     'personas.idpersona as id',
                     'fuerzas.fuerza as fuerza',
@@ -176,6 +177,7 @@ class PersonasController extends Controller
                     'statuscvs.name as status_civil',
                     'organizacion.nomorg as organizacion',
                     'puestos.nompuesto as puesto',
+                    'asignacion_vacaciones.*',
                     DB::raw("
                         CASE
                             WHEN grados.categoria = 'OG' THEN CONCAT(grados.abregrado, ' ', personas.appaterno, ' ', personas.apmaterno, ' ', personas.nombres)
@@ -900,20 +902,20 @@ class PersonasController extends Controller
         }
     }
     // Historial de vaciones de cada persona
-    public function obtenerVacacionesPersona()
+    public function obtenerVacacionesPersona($userId)
     {
         try {
-            // $accessibleOrganizationIds = DB::table('personas')
-            //     ->where('iduser', $userId)
-            //     ->pluck('idorg');
+            $accessibleOrganizationIds = DB::table('personas')
+                ->where('iduser', $userId)
+                ->pluck('idorg');
 
-            // if ($accessibleOrganizationIds->isEmpty()) {
-            //     return response()->json([
-            //         'status' => false,
-            //         'message' => 'El usuario no está asociado a ninguna organización o no tiene accesos asignados.',
-            //         'data' => []
-            //     ], 403);
-            // }
+            if ($accessibleOrganizationIds->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'El usuario no está asociado a ninguna organización o no tiene accesos asignados.',
+                    'data' => []
+                ], 403);
+            }
             $vacationRecords = DB::table('personas')
                 ->leftJoin('grados', 'personas.idgrado', '=', 'grados.idgrado')
                 ->leftJoin('tiponovedad', 'personas.idpersona', '=', 'tiponovedad.idpersona')

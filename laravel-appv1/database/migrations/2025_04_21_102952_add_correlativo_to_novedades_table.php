@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('novedades', function (Blueprint $table) {
-            $table->integer('correlativo')->nullable();
-            $table->string('nrocorre', 10)->nullable(); // También agregas esta si tampoco existe
+            // $table->integer('correlativo')->nullable();
+            // $table->string('nrocorre', 10)->nullable(); // También agregas esta si tampoco existe
         });
     }
 
@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('novedades', function (Blueprint $table) {
-            $table->dropColumn('correlativo');
-            $table->dropColumn('nrocorre');
+            // $table->dropColumn('correlativo');
+            // $table->dropColumn('nrocorre');
         });
     }
 };

@@ -99,12 +99,36 @@ export function Vacaciones() {
       alert('Error al descargar el reporte.');
     }
   };
+/// HISTORIAL DE VACIONES
+  const { getHistorialVacaciones } = useNovedades(); // Asegúrate de tenerlo del context
+  const [vacacionesAsignadas, setVacacionesAsignadas] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [historialVacaciones, setHistorialVacaciones] = useState([]);
 
+  const handleOpenHistorialModal = async () => {
+    setIsModalOpen(true);
+    setSelectedUserId(null);
+    setHistorialVacaciones([]);
+  };
 
+  const handleUserChange = async (e) => {
+    const id = e.target.value;
+    setSelectedUserId(id);
 
-
-
+    const data = await getHistorialVacaciones(id);
+    if (data.status) {
+      setHistorialVacaciones(data.novedades); // solo novedades
+      setVacacionesAsignadas(data.vacaciones || []);
+    } else {
+      setHistorialVacaciones([]); // si viene con error o vacío
+      setVacacionesAsignadas([]);
+    }
+  };
+//_________________________________________________________________
+//__________________________________________________________________
 
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
@@ -287,30 +311,42 @@ export function Vacaciones() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button
-              endContent={<FileText className="text-small" />}
-              size="sm"
-              onPress={() => downloadsPlanilla()}
-              color="danger"
-              variant="flat"
-            >
-              Descargar PDF Planilla
-            </Button>
-            <Button
-              endContent={<FileText className="text-small" />}
-              size="sm"
-              onPress={() => descargarExcelPlanilla()}
-              color="success"
-              variant="flat"
-            >
-              Descargar Excel Planilla
-            </Button>
+            <Dropdown>
+              <DropdownTrigger className="hidden sm:flex">
+                <Button
+                  endContent={<ChevronDownIcon className="text-small" />}
+                  size="sm"
+                  variant="flat"
+                >
+                  Descargar Planilla
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Descargar Reportes">
+                <DropdownItem
+                  key="pdf"
+                  className="hover:bg-red-100 text-red-700 font-medium transition-colors duration-300 rounded-md"
+                  startContent={<FileText className="text-danger" />}
+                  onPress={() => downloadsPlanilla()}
+                >
+                  Descargar PDF
+                </DropdownItem>
+
+                <DropdownItem
+                  key="excel"
+                  className="hover:bg-green-100 text-green-700 font-medium transition-colors duration-300 rounded-md"
+                  startContent={<FileText className="text-success" />}
+                  onPress={() => descargarExcelPlanilla()}
+                >
+                  Descargar Excel
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
           </div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">Total {users10.length} Usuarios</span>
           <label className="flex items-center text-default-400 text-small">
-            Rows per page:
+            Filas por página:
             <select
               className="bg-transparent outline-none text-default-400 text-small"
               onChange={onRowsPerPageChange}
@@ -396,13 +432,15 @@ export function Vacaciones() {
             <Button 
             type="button" 
             onClick={enviarParte} 
-            className={`bg-foreground text-background ${isLoa ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`border border-foreground text-foreground bg-background 
+                          px-5 py-2 rounded-lg font-semibold transition-colors duration-200
+                          ${isLoa ? 'opacity-20 cursor-not-allowed' : 'hover:bg-foreground hover:text-background'}`}
             disabled={isLoa}
             aria-busy={isLoa}
             >
-              Generar vacaciones
+              Generar Vacaciones
             </Button>
-          </div>
+        </div>
           <Table
             isCompact
             removeWrapper

@@ -88,6 +88,12 @@ Route::middleware(['jwt.verify'])->group(function () {
     Route::get('showAssignments/{id}', [AssignmentsController::class, 'showAssignments']);
     Route::put('updateEndDate/{id}', [AssignmentsController::class, 'updateEndDate']);
     Route::apiResource('novedades', NovedadesController::class);
+
+
+    Route::get('novedades/historial-vacaciones/{idpersona}', [NovedadesController::class, 'historialVacacionesPorPersona']);
+    Route::put('novedades/asignacion-vacaciones/{idpersona}', [NovedadesController::class, 'actualizarAsignacionVacaciones']);
+
+
     Route::get('indexVigentes', [NovedadesController::class, 'indexVigentes']);
     Route::post('storemassive', [NovedadesController::class, 'storeMassive']);
 
@@ -115,10 +121,10 @@ Route::middleware(['jwt.verify'])->group(function () {
 
     Route::get('vacacionpersona', [PersonasController::class, 'obtenerVacacionesPersona']);
 
-
     Route::get('partereportsusers/{iduser}/{fecha}',  [ReportsController::class, 'parteReportsUsers']);
     Route::get('solpermisosrrhh/{iduser}/{fecha}',  [ReportsController::class, 'solPermisosRrhh']);
     Route::get('papeletapermiso/{id}',  [ReportsController::class, 'PapeletaPermiso']);
+    Route::get('historialVacacion/{idpersona}',  [ReportsController::class, 'generarHistorialVacacionPDF']);
     
 
     Route::get('indexreporpartes/{id}',  [InfoReportsController::class, 'indexReporPartes']);

@@ -17,7 +17,7 @@ class AsignacionVacaciones extends Model  // Extiende de Model
     // Establecer la clave primaria
     // protected $primaryKey = 'idrol';
     public $incrementing = false; // Deshabilitar claves incrementales automáticas
-    protected $primaryKey = null; // Indicar que no hay clave primaria
+    protected $primaryKey = 'id_asigv'; // Indicar que no hay clave primaria
     // Deshabilitar la auditoría en este modelo
     protected $auditEnabled = false;
     /**

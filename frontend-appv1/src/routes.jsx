@@ -32,13 +32,14 @@ import {
   Informes,
   Permisos,
   Parterrhh,
+  HistorialVacacion,
 } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import ProtectedRoute from "@/component/ProtectedRoute";
 import AuthRoute from "@/component/AuthRoute";
 // import { BanknotesIcon, UserPlusIcon, , ChartBarIcon } from "@heroicons/react/24/solid";
 import Tutoriales from "@/pages/dashboard/tutoriales";
-
+import { BriefcaseIcon } from "@heroicons/react/24/outline";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -103,6 +104,13 @@ export const routes = [
         element: <ProtectedRoute element={<Vacaciones />} />,
       },
       {
+        icon: <BriefcaseIcon {...icon} />,
+        name: "HISTORIAL VACACIONES",
+        path: "/historialVacacion",
+        allowedRoles: [1, 2],
+        element: <ProtectedRoute element={<HistorialVacacion />} />,
+      },
+      {
         icon: <FolderIcon {...icon} />,
         name: "NOVEDADES",
         path: "/novedades",
@@ -137,13 +145,7 @@ export const routes = [
         allowedRoles: [1,2],
         element: <ProtectedRoute element={<Parterrhh />} />,
       },
-      {
-        icon: <ChartBarIcon {...icon} />,
-        name: "REPORTES",
-        path: "#",
-        allowedRoles: [1,2],
-        element: <ProtectedRoute element={<Permisos />} />,
-      },
+
       // {
       //   icon: <TableCellsIcon {...icon} />,
       //   name: "tables",

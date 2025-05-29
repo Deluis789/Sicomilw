@@ -11,6 +11,8 @@ use App\Exports\ParteGeneralExport;
 use App\Exports\PlanillaVacacionesExport;
 use Maatwebsite\Excel\Facades\Excel;
 
+//use Barryvdh\DomPDF\Facade\Pdf;
+
 class ReportsController extends Controller
 {
     public function generatePDF()
@@ -116,6 +118,7 @@ class ReportsController extends Controller
     }
     public function solPermisosRrhh($iduser, $date) {
         try {
+            set_time_limit(300);
             // Obtener todos los idorg permitidos para el usuario
             $accessibleOrgs = DB::table('user_accesos')
                 ->where('iduser', $iduser)
@@ -195,6 +198,7 @@ class ReportsController extends Controller
     }
     //planilla de generacion de vacaciones
     public function planillaVacaciones() {
+        set_time_limit(300);
         try {
             // Obtener la gestión actual (año actual)
             $gestion_actual = Carbon::now()->year;
@@ -656,6 +660,7 @@ class ReportsController extends Controller
    //Imprimir la papeleta de permiso del personal
     public function PapeletaPermiso(int $idnovedad)
     {
+        set_time_limit(300);
         try {
             // Obtener la novedad, su tipo y la asignación relacionada
             $datos = DB::table('novedades')
@@ -737,6 +742,16 @@ class ReportsController extends Controller
     public function exportPersonasExcel()
     {
         set_time_limit(300);
+
+        // Subconsulta para obtener la última asignación por persona
+        $latestAssignments = DB::table('assignments as a1')
+            ->select('a1.*')
+            ->whereRaw('a1.idassig = (
+                SELECT MAX(a2.idassig)
+                FROM assignments as a2
+                WHERE a2.idpersona = a1.idpersona
+            )');
+
         $personas = DB::table('personas')
             ->leftJoin('fuerzas', 'personas.idfuerza', '=', 'fuerzas.idfuerza')
             ->leftJoin('especialidades', 'personas.idespecialidad', '=', 'especialidades.idespecialidad')
@@ -746,7 +761,9 @@ class ReportsController extends Controller
             ->leftJoin('statuscvs', 'personas.idcv', '=', 'statuscvs.idcv')
             ->leftJoin('situaciones', 'personas.idsituacion', '=', 'situaciones.idsituacion')
             ->leftJoin('expediciones', 'personas.idexpedicion', '=', 'expediciones.idexpedicion')
-            ->leftJoin('assignments', 'personas.idpersona', '=', 'assignments.idpersona')
+            ->leftJoinSub($latestAssignments, 'assignments', function ($join) {
+                $join->on('personas.idpersona', '=', 'assignments.idpersona');
+            })
             ->leftJoin('organizacion', 'assignments.idorg', '=', 'organizacion.idorg')
             ->leftJoin('puestos', 'assignments.idpuesto', '=', 'puestos.idpuesto')
             ->select(
@@ -763,10 +780,12 @@ class ReportsController extends Controller
                 'puestos.nompuesto as nombre_puesto'
             )
             ->where('personas.status', true)
+            ->orderBy('organizacion.nomorg', 'asc')
             ->get();
 
         return Excel::download(new ParteGeneralExport($personas), 'personas.xlsx');
     }
+
     
     public function planillaVacacionesExcel()
     {
@@ -817,4 +836,86 @@ class ReportsController extends Controller
             ], 500);
         }
     }
+
+    public function generarHistorialVacacionPDF($idpersona)
+    {
+        set_time_limit(300);
+        $inicio = microtime(true);
+        \Log::info("⏳ Generando historial para ID: $idpersona");
+
+        // Obtener datos de persona
+        $persona = DB::table('personas')
+            ->leftJoin('grados', 'personas.idgrado', '=', 'grados.idgrado')
+            ->where('idpersona', $idpersona)
+            ->select('idpersona', 'nombres', 'appaterno', 'apmaterno', 'fechaegreso', 'grados.abregrado as grado')
+            ->orderBy('personas.nombres', 'asc')
+            ->first();
+
+        if (!$persona) {
+            \Log::warning("❌ Persona no encontrada: $idpersona");
+            abort(404, 'Persona no encontrada.');
+        }
+
+        // Asignaciones de vacaciones
+        $asignaciones = DB::table('asignacion_vacaciones')
+            ->where('idpersona', $idpersona)
+            ->orderByDesc('gestion')
+            ->get();
+
+        if ($asignaciones->isEmpty()) {
+            \Log::warning("❌ Sin asignaciones para: $idpersona");
+            abort(404, 'No hay asignaciones de vacaciones para esta persona.');
+        }
+
+        // Novedades (optimizadas con índice y solo columnas necesarias)
+        $novedades = DB::table('novedades')
+            ->join('assignments', 'novedades.idassig', '=', 'assignments.idassig')
+            ->join('tiponovedad', 'novedades.idnov', '=', 'tiponovedad.idnov')
+            ->where('assignments.idpersona', $idpersona)
+            ->whereIn('novedades.idnov', [2, 3])
+            ->where('novedades.estado', 'A')
+            ->select('novedades.idnov', 'novedades.descripcion', 'novedades.estado', 'novedades.startdate', 'novedades.enddate', 'novedades.created_at', 'tiponovedad.novedad')
+            ->orderByDesc('novedades.created_at')
+            ->get();
+
+        $totalDias = 0;
+
+        $novedades = $novedades->map(function ($novedad) use (&$totalDias) {
+            try {
+                $start = new \DateTime($novedad->startdate);
+                $end = new \DateTime($novedad->enddate);
+                $dias = $start->diff($end)->days + 1;
+            } catch (\Exception $e) {
+                \Log::error("❌ Error en fechas: " . $e->getMessage());
+                $dias = 0;
+            }
+
+            $novedad->dias = $dias;
+            $totalDias += $dias;
+            return $novedad;
+        });
+
+        $nombreCompleto = "{$persona->grado} {$persona->nombres} {$persona->appaterno} {$persona->apmaterno}";
+        $fechaEgreso = $persona->fechaegreso ? \Carbon\Carbon::parse($persona->fechaegreso)->format('d/m/Y') : '';
+
+        \Log::info("📊 Datos listos en: " . round(microtime(true) - $inicio, 2) . "s");
+
+        // ✅ Generación del PDF usando App::make
+        $pdf = \App::make('dompdf.wrapper');
+        $pdf->loadView('reports.historial_vacaciones', [
+            'persona' => $persona,
+            'nombreCompleto' => $nombreCompleto,
+            'fechaEgreso' => $fechaEgreso,
+            'asignaciones' => $asignaciones,
+            'novedades' => $novedades,
+            'totalDias' => $totalDias,
+            'date' => now()->format('d/m/Y'),
+        ]);
+
+        \Log::info("🧾 PDF generado en: " . round(microtime(true) - $inicio, 2) . "s");
+
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="Historial_Vacaciones_' . $nombreCompleto . '.pdf"');
+    }   
 }

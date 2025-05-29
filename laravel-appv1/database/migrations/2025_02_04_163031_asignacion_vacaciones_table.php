@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('dias_asignados')->notNull();
             $table->integer('dias_utilizados')->default(0);
             $table->timestamps();
-
+            
             $table->foreign('idpersona')->references('idpersona')->on('personas');
         });
     }

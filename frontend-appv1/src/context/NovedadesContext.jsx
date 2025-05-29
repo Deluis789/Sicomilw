@@ -401,6 +401,60 @@ export const NovedadesProvider = ({ children }) => {
             setLoading(false);
         }
     };
+
+    const getHistorialVacaciones = async (idpersona) => {
+        setLoading(true);
+        try {
+            const response = await vacacionesService.getHistorialVacaciones(idpersona);
+            return response.data; // Esto puede ser un arreglo de vacaciones
+        } catch (error) {
+            console.error("Error al obtener historial de vacaciones:", error);
+            Swal.fire("Error", "No se pudo obtener el historial de vacaciones.", "error");
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // Reporte historial
+    const getHistorialVacacionespdf = async (idpersona) => {
+    setLoading(true);
+    try {
+        const response = await vacacionesService.getHistorialVacacionespdf(idpersona);
+
+        const contentType = response.headers['content-type'];
+        console.log("🔍 Tipo de contenido:", contentType);
+
+        if (!contentType.includes('application/pdf')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            console.error("❌ Contenido recibido:", reader.result);
+            Swal.fire("Error", reader.result || "El servidor no devolvió un archivo PDF.", "error");
+        };
+        reader.readAsText(response.data);
+        return false;
+        }
+
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `HistorialVacaciones-${idpersona}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        return true;
+    } catch (error) {
+        console.error("🛑 Error en getHistorialVacacionespdf:", error);
+        Swal.fire("Error", "No se pudo obtener el reporte historial de vacaciones.", "error");
+        return false;
+    } finally {
+        setLoading(false);
+    }
+    };
+    
     return (
         <NovedadesContext.Provider value={{ users, user, 
                                             createNovedad, 
@@ -421,7 +475,9 @@ export const NovedadesProvider = ({ children }) => {
                                             
                                             getVerificadorId,
                                             getVerificadorIdFecha,
-                                            getVerificadorIdCantidad}}>
+                                            getVerificadorIdCantidad,
+                                            getHistorialVacaciones,
+                                            getHistorialVacacionespdf}}>
             {children}
             {loading && (
                 <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>

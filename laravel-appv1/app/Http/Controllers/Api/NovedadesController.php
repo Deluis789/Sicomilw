@@ -610,4 +610,99 @@ class NovedadesController extends Controller
         return $diasHabiles;
     }
 
+
+    public function historialVacacionesPorPersona($idpersona)
+    {
+        $persona = DB::table('personas')
+            ->where('idpersona', $idpersona)
+            ->select('idpersona', 'nombres', 'appaterno', 'apmaterno')
+            ->first();
+
+        if (!$persona) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Persona no encontrada.'
+            ], 404);
+        }
+
+        // Obtener asignaciones de vacaciones
+        $asignaciones = DB::table('asignacion_vacaciones')
+            ->where('idpersona', $idpersona)
+            ->orderByDesc('gestion')
+            ->get();
+
+        if ($asignaciones->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No hay datos de asignación de vacaciones para esta persona.'
+            ], 404);
+        }
+
+        // Obtener novedades y calcular días por cada novedad
+        $novedades = DB::table('novedades')
+            ->join('assignments', 'novedades.idassig', '=', 'assignments.idassig')
+            ->where('assignments.idpersona', $idpersona)
+            ->whereIn('novedades.idnov', [2, 3])
+            ->where('novedades.estado', 'A') // tipos de novedad que cuentan
+            ->select('novedades.*')
+            ->orderByDesc('novedades.created_at')
+            ->get();
+
+        $totalDias = 0;
+
+        // Añadir campo dias a cada novedad
+        $novedades = $novedades->map(function ($novedad) use (&$totalDias) {
+            $start = Carbon::parse($novedad->startdate);
+            $end = Carbon::parse($novedad->enddate);
+            $dias = $start->diffInDays($end) + 1; // incluye el mismo día
+
+            $novedad->dias = $dias; // nuevo campo por novedad
+            $totalDias += $dias;
+
+            return $novedad;
+        });
+
+        return response()->json([
+            'status' => true,
+            'persona' => $persona->nombres . ' ' . $persona->appaterno . ' ' . $persona->apmaterno,
+            'idpersona' => $idpersona,
+            'vacaciones' => $asignaciones,
+            'novedades' => $novedades, // cada una con su campo "dias"
+            'total_dias_utilizados' => $totalDias
+        ]);
+    }
+
+
+    public function actualizarAsignacionVacaciones(Request $request, $idpersona)
+    {
+        // Validación de los datos entrantes
+        $request->validate([
+            'gestion' => 'required|integer',
+            'anios_servicio' => 'required|integer|min:0',
+            'dias_asignados' => 'required|integer|min:0',
+            'dias_utilizados' => 'nullable|integer|min:0',
+        ]);
+
+        // Buscar la asignación por idpersona
+        $asignacion = AsignacionVacaciones::where('idpersona', $idpersona)->first();
+
+        // Verificar si existe
+        if (!$asignacion) {
+            return response()->json(['mensaje' => 'Asignación de vacaciones no encontrada para la persona.'], 404);
+        }
+
+        $asignacion->gestion = $request->gestion;
+        $asignacion->anios_servicio = $request->anios_servicio;
+        $asignacion->dias_asignados = $request->dias_asignados;
+        $asignacion->dias_utilizados = $request->dias_utilizados ?? $asignacion->dias_utilizados;
+
+        $asignacion->save();
+
+        return response()->json(['mensaje' => 'Asignación de vacaciones actualizada correctamente.'], 200);
+    }
 }
+
+// http://127.0.0.1:8000/api/novedades/historial-vacaciones/632
+
+
+// novedades/historial-vacaciones/97

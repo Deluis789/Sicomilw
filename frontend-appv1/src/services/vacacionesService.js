@@ -5,4 +5,11 @@ import api from '@/api/axios';
 const vacaciones = (data) => api.post('/vacaciones', data);
 
 
-export default { vacaciones};
+// Obtener historial de vacaciones por persona
+const getHistorialVacaciones = (idpersona) => api.get(`/novedades/historial-vacaciones/${idpersona}`);
+// Reporte
+const getHistorialVacacionespdf = (idpersona) =>
+    api.get(`historialVacacion/${idpersona}`, { responseType: 'blob' });
+
+
+export default { vacaciones, getHistorialVacaciones, getHistorialVacacionespdf};

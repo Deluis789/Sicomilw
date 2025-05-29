@@ -13,3 +13,6 @@ export * from "@/pages/dashboard/novedades";
 export * from "@/pages/dashboard/informes";
 export * from "@/pages/dashboard/permisos";
 export * from "@/pages/dashboard/parterrhh";
+export * from "@/pages/dashboard/historialVacacion";
+
+
