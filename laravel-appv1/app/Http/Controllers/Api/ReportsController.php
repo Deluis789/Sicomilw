@@ -843,6 +843,8 @@ class ReportsController extends Controller
         $inicio = microtime(true);
         \Log::info("⏳ Generando historial para ID: $idpersona");
 
+        $gestionActual = Carbon::now()->year;
+
         // Obtener datos de persona
         $persona = DB::table('personas')
             ->leftJoin('grados', 'personas.idgrado', '=', 'grados.idgrado')
@@ -859,7 +861,7 @@ class ReportsController extends Controller
         // Asignaciones de vacaciones
         $asignaciones = DB::table('asignacion_vacaciones')
             ->where('idpersona', $idpersona)
-            ->orderByDesc('gestion')
+            ->where('gestion', $gestionActual)
             ->get();
 
         if ($asignaciones->isEmpty()) {
