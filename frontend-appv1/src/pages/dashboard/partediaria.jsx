@@ -1,4 +1,4 @@
-import React,{useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Table,
@@ -25,21 +25,9 @@ import {
 import Loader from "../../component/Loader/Loader";
 import { useNovedades } from "@/context/NovedadesContext";
 
-import {SearchIcon} from "@/pages/componentes/SearchIcon";
+import { SearchIcon } from "@/pages/componentes/SearchIcon";
 
-import {columns, statusOptions} from "@/data/dataPartes";
-
-import {EditIcon} from "@/pages/componentes/modals/acctions/EditIcon";
-import {EyeIcon} from "@/pages/componentes/modals/acctions/EyeIcon";
-
-import { StatisticsCard } from "@/widgets/cards";
-// import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
-import {
-  CardsData,
-} from "@/data";
-
-
-
+import { columns, statusOptions } from "@/data/dataPartes";
 
 const statusColorMap = {
   Activo: "success",
@@ -47,18 +35,16 @@ const statusColorMap = {
   vacation: "warning",
 };
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "celular","fuerza","puesto","organizacion","estado_forma"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "celular", "fuerza", "puesto", "organizacion", "estado_forma"];
 
 export function Partediaria() {
-  const {  isInitNovedades, fetchPerNovedades,storeMassive} = useNovedades();
+  const { isInitNovedades, fetchPerNovedades, storeMassive } = useNovedades();
   const [isModalOpen, setModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
-  const [isLoa, setIsLoa] = useState(false); 
-  const [isModalOpenP, setModalOpenP] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [isLoa, setIsLoa] = useState(false);
+
   const [novedades, setNovedades] = useState([]);
-  const [assing, setAssing] = useState(null);
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -69,9 +55,9 @@ export function Partediaria() {
     column: "age",
     direction: "ascending",
   });
-  const getRelacionNominal=async ()=>{
+  const getRelacionNominal = async () => {
     setIsLoading(true); // Activa el loader
-    const usePersonas= await fetchPerNovedades();
+    const usePersonas = await fetchPerNovedades();
     // console.log(usePersonas);
     setNovedades(usePersonas);
     setIsLoading(false); // Desactiva el loader
@@ -83,23 +69,23 @@ export function Partediaria() {
     setIsLoa(true);
     // Evita el comportamiento predeterminado del botón o formulario
     event.preventDefault();
-  
+
     // console.log("Botón clickeado, función enviarParte ejecutada",selectedKeys);
-  
+
     const isAllSelected = selectedKeys === "all";
     // console.log("isAllSelected:", isAllSelected);
-  
+
     const selectedKeysArray = isAllSelected
       ? novedades.map((user) => String(user.id))
       : Array.from(selectedKeys);
-  
+
     if (selectedKeysArray.length === 0) {
       setAlertVisible(true);
       setTimeout(() => setAlertVisible(false), 3000); // Ocultar después de 3 segundos
       setIsLoa(false);
       return;
     }
-  
+
     const selectedData = novedades.filter((user) =>
       selectedKeysArray.includes(String(user.id))
     );
@@ -107,20 +93,20 @@ export function Partediaria() {
     console.log("Usuarios seleccionados para enviar:", selectedData);
     setIsLoa(false);
   };
-  
-  
-  
+
+
+
   useEffect(() => {
     console.log("selectedKeys actualizado:", Array.from(selectedKeys));
-     // Crear un intervalo que actualice la hora cada segundo
-     const timer = setInterval(() => {
+    // Crear un intervalo que actualice la hora cada segundo
+    const timer = setInterval(() => {
       setDateTime(new Date());
     }, 1000);
 
     // Limpiar el intervalo al desmontar el componente
     return () => clearInterval(timer);
   }, [selectedKeys]);
-  
+
   const [page, setPage] = React.useState(1);
 
   const pages = Math.ceil(novedades.length / rowsPerPage);
@@ -150,12 +136,17 @@ export function Partediaria() {
     return filteredUsers;
   }, [novedades, filterValue, statusFilter]);
 
-  const items = React.useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
+  // const items = React.useMemo(() => {
+  //   const start = (page - 1) * rowsPerPage;
+  //   const end = start + rowsPerPage;
 
-    return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
+  //   return filteredItems.slice(start, end);
+  // }, [page, filteredItems, rowsPerPage]);
+  //--------------------------------------------------------------------
+  const items = React.useMemo(() => {
+    return filteredItems; // Mostrar todos los registros sin paginar
+  }, [filteredItems]);
+  // ------------------------------------------------------------------
 
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a, b) => {
@@ -174,7 +165,7 @@ export function Partediaria() {
       case "name":
         return (
           <User
-            avatarProps={{radius: "full", size: "sm", src: user.avatar}}
+            avatarProps={{ radius: "full", size: "sm", src: user.avatar }}
             classNames={{
               description: "text-default-500",
             }}
@@ -291,13 +282,13 @@ export function Partediaria() {
                 ))}
               </DropdownMenu>
             </Dropdown> */}
-           
-            
+
+
           </div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">Total {novedades.length} Usuarios</span>
-          <label className="flex items-center text-default-400 text-small">
+          {/* <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
               className="bg-transparent outline-none text-default-400 text-small"
@@ -308,7 +299,7 @@ export function Partediaria() {
               <option value="15">15</option>
               <option value="50">50</option>
             </select>
-          </label>
+          </label> */}
         </div>
       </div>
     );
@@ -325,7 +316,7 @@ export function Partediaria() {
   const bottomContent = React.useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
-        <Pagination
+        {/* <Pagination
           showControls
           classNames={{
             cursor: "bg-foreground text-background",
@@ -336,7 +327,7 @@ export function Partediaria() {
           total={pages}
           variant="light"
           onChange={setPage}
-        />
+        /> */}
         <span className="text-small text-default-400">
           {selectedKeys === "all"
             ? `${novedades.length} usuarios seleccionados`
@@ -373,19 +364,39 @@ export function Partediaria() {
             <span className="ml-auto text-right">
               {/* <CheckCircleIcon strokeWidth={3} className="h-4 w-4 text-blue-gray-400" /> */}
               <strong>{dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString()}</strong>
-              
+
             </span>
           </Typography>
         </CardHeader>
+        {/* 📢 Comunicado oficial */}
+        <div className="px-6 pb-0">
+          <div className="relative text-center bg-gradient-to-br from-yellow-50 via-white to-yellow-100 border-l-8 border-yellow-500 rounded-2xl p-6 shadow-lg">
+            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-white rounded-full p-2 shadow-md">
+              <span role="img" aria-label="alert" className="text-xl">📢</span>
+            </div>
+
+            <Typography variant="h5" className="text-yellow-800 font-extrabold mt-6 mb-2 tracking-wide uppercase">
+              Comunicado Oficial
+            </Typography>
+
+            <Typography variant="paragraph" className="text-gray-800 text-base mb-5 leading-relaxed">
+              Informamos a todo el <strong>personal autorizado</strong> con acceso a la aplicación web <strong>SICOMIL</strong> del Ministerio de Defensa, que se implementará un nuevo horario estrictamente controlado <strong>a partir de la fecha 14 de agosto del presente año</strong> para el envío de partes:
+            </Typography>
+
+            <div className="bg-red-100 border border-red-400 text-red-800 rounded-xl py-4 px-6 font-semibold text-base shadow-inner inline-block">
+              🕗 <strong>Horario habilitado:</strong> De 07:00 a.m. a 10:00 a.m.
+            </div>
+          </div>
+        </div>
 
         <CardBody className="flex flex-col gap-4 p-4 overflow-x-scroll"> {/* Quité overflow-x-auto */}
-        {alertVisible && (
-          <Alert 
-            color="danger" 
-            title="Seleccione todo el personal de su repartición para generar el parte diario." 
-          />
-        )}
-        <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
+          {alertVisible && (
+            <Alert
+              color="danger"
+              title="Seleccione todo el personal de su repartición para generar el parte diario."
+            />
+          )}
+          {/* <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
             {CardsData.map(({ icon, title, ...rest }) => (
               <StatisticsCard
                 key={title}
@@ -396,36 +407,36 @@ export function Partediaria() {
                 })}
               />
             ))}
-        </div>
+          </div> */}
           <div className="mb-12 flex justify-end gap-4">
-          {isLoading && <Loader aria-live="polite" />}
-          <Button 
-            onClick={() => !isLoading && getRelacionNominal()}  
-            className={`bg-foreground text-background ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={isLoading}
-            aria-busy={isLoading}
-          >
-            Relacion Nominal
-          </Button>
-          {isLoa && <Loader aria-live="polite" />}
-            <Button 
-            type="button" 
-            onClick={enviarParte} 
-            color="warning"
-            disabled={isLoa}
-            aria-busy={isLoa}
+            {isLoading && <Loader aria-live="polite" />}
+            <Button
+              onClick={() => !isLoading && getRelacionNominal()}
+              className={`bg-foreground text-background ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isLoading}
+              aria-busy={isLoading}
+            >
+              Relacion Nominal
+            </Button>
+            {isLoa && <Loader aria-live="polite" />}
+            <Button
+              type="button"
+              onClick={enviarParte}
+              color="warning"
+              disabled={isLoa}
+              aria-busy={isLoa}
             >
               Enviar Parte
             </Button>
           </div>
-            <hr />
+          <hr />
           <Table
             isCompact
             removeWrapper
             aria-label="Example table with custom cells, pagination and sorting"
             bottomContent={bottomContent}
             bottomContentPlacement="outside"
-            className="w-full table-auto" // Ajustado para que ocupe todo el ancho disponible sin overflow
+            className="w-full table-auto"
             checkboxesProps={{
               classNames: {
                 wrapper: "after:bg-foreground after:text-background text-background",
@@ -437,8 +448,15 @@ export function Partediaria() {
             sortDescriptor={sortDescriptor}
             topContent={topContent}
             topContentPlacement="outside"
-            onSelectionChange={setSelectedKeys}
+            onSelectionChange={(keys) => {
+              if (keys === "all") {
+                setSelectedKeys("all");
+              } else {
+                setSelectedKeys(new Set()); // Bloquea selección individual
+              }
+            }}
             onSortChange={setSortDescriptor}
+
           >
             <TableHeader columns={headerColumns}>
               {(column) => (
@@ -453,13 +471,13 @@ export function Partediaria() {
             </TableHeader>
             <TableBody emptyContent={"No users found"} items={sortedItems}>
               {(item) => (
-                <TableRow key={item.id}>
+                // aqui añadir tambien isSelectable 
+                <TableRow key={item.id} isSelectable={false}>
                   {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                 </TableRow>
               )}
             </TableBody>
           </Table>
-          
         </CardBody>
       </Card>
     </div>
@@ -467,3 +485,4 @@ export function Partediaria() {
 }
 
 export default Partediaria;
+
